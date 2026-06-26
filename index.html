@@ -3,33 +3,60 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Ordena la Historia de las Computadoras</title>
+<title>Verdadero o Falso - Historia de las Computadoras</title>
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-<div class="container">
+<div class="game">
 
-    <h1>🖥️ Ordena la Historia de las Computadoras</h1>
+    <h1>💻 Historia de las Computadoras</h1>
 
-    <p class="descripcion">
-        Arrastra los eventos y colócalos en el orden correcto.
-    </p>
+    <div class="topbar">
+        <div>❤️ Vidas: <span id="vidas">3</span></div>
+        <div>⭐ Puntos: <span id="puntos">0</span></div>
+        <div>⏱️ <span id="timer">10</span>s</div>
+    </div>
 
-    <ul id="timeline">
-        <li draggable="true">IBM PC</li>
-        <li draggable="true">Era Moderna e Inteligencia Artificial</li>
-        <li draggable="true">ENIAC</li>
-        <li draggable="true">World Wide Web</li>
-        <li draggable="true">Transistor</li>
-        <li draggable="true">Intel 4004</li>
-    </ul>
+    <div class="question-card">
 
-    <button id="checkBtn">
-        Verificar Respuesta
-    </button>
+        <h2 id="pregunta">
+            Cargando...
+        </h2>
 
-    <div id="resultado"></div>
+        <div class="buttons">
+
+            <button class="trueBtn" onclick="responder(true)">
+                ✅ VERDADERO
+            </button>
+
+            <button class="falseBtn" onclick="responder(false)">
+                ❌ FALSO
+            </button>
+
+        </div>
+
+        <div id="mensaje"></div>
+
+    </div>
+
+</div>
+
+<div id="finalScreen" class="hidden">
+
+    <div class="finalCard">
+
+        <h1>🏆 Juego Finalizado</h1>
+
+        <h2 id="medalla"></h2>
+
+        <p id="resultadoFinal"></p>
+
+        <button onclick="location.reload()">
+            🔄 Jugar Otra Vez
+        </button>
+
+    </div>
 
 </div>
 

@@ -1,128 +1,237 @@
-const lista = document.getElementById("timeline");
+const preguntas = [
 
-let elementoArrastrado = null;
+{
+texto:"La ENIAC fue la primera computadora electrónica de propósito general.",
+respuesta:true
+},
 
-lista.addEventListener("dragstart", (e) => {
+{
+texto:"El transistor reemplazó los tubos de vacío.",
+respuesta:true
+},
 
-    elementoArrastrado = e.target;
-    e.target.classList.add("dragging");
+{
+texto:"La World Wide Web fue creada antes que la ENIAC.",
+respuesta:false
+},
 
-});
+{
+texto:"La CPU es conocida como el cerebro de la computadora.",
+respuesta:true
+},
 
-lista.addEventListener("dragend", (e) => {
+{
+texto:"La memoria RAM guarda los datos permanentemente.",
+respuesta:false
+},
 
-    e.target.classList.remove("dragging");
+{
+texto:"Intel 4004 fue uno de los primeros microprocesadores.",
+respuesta:true
+},
 
-});
+{
+texto:"El monitor se encuentra dentro del gabinete.",
+respuesta:false
+},
 
-lista.addEventListener("dragover", (e) => {
+{
+texto:"La inteligencia artificial forma parte de la era moderna.",
+respuesta:true
+}
 
-    e.preventDefault();
+];
 
-    const despuesDelElemento =
-        getDragAfterElement(lista, e.clientY);
+let actual = 0;
+let puntos = 0;
+let vidas = 3;
+let tiempo = 10;
+let intervalo;
 
-    if(despuesDelElemento == null){
+const preguntaEl =
+document.getElementById("pregunta");
 
-        lista.appendChild(elementoArrastrado);
+const vidasEl =
+document.getElementById("vidas");
 
-    }else{
+const puntosEl =
+document.getElementById("puntos");
 
-        lista.insertBefore(
-            elementoArrastrado,
-            despuesDelElemento
-        );
+const timerEl =
+document.getElementById("timer");
 
-    }
+const mensajeEl =
+document.getElementById("mensaje");
 
-});
+function sonidoCorrecto(){
 
-function getDragAfterElement(container, y){
+const ctx =
+new (window.AudioContext ||
+window.webkitAudioContext)();
 
-    const elementos =
-        [...container.querySelectorAll("li:not(.dragging)")];
+const osc =
+ctx.createOscillator();
 
-    return elementos.reduce((closest, child) => {
+osc.frequency.value = 700;
+osc.connect(ctx.destination);
 
-        const box = child.getBoundingClientRect();
+osc.start();
 
-        const offset =
-            y - box.top - box.height / 2;
+setTimeout(()=>{
+osc.stop();
+},150);
 
-        if(offset < 0 && offset > closest.offset){
+}
 
-            return {
-                offset: offset,
-                element: child
-            };
+function sonidoError(){
 
-        }else{
+const ctx =
+new (window.AudioContext ||
+window.webkitAudioContext)();
 
-            return closest;
+const osc =
+ctx.createOscillator();
 
-        }
+osc.frequency.value = 200;
+osc.connect(ctx.destination);
 
-    }, {
-        offset: Number.NEGATIVE_INFINITY
-    }).element;
+osc.start();
+
+setTimeout(()=>{
+osc.stop();
+},250);
+
+}
+
+function cargarPregunta(){
+
+if(actual >= preguntas.length ||
+vidas <= 0){
+
+terminarJuego();
+return;
+
+}
+
+preguntaEl.innerHTML =
+preguntas[actual].texto;
+
+mensajeEl.innerHTML = "";
+
+tiempo = 10;
+timerEl.innerHTML = tiempo;
+
+clearInterval(intervalo);
+
+intervalo = setInterval(()=>{
+
+tiempo--;
+
+timerEl.innerHTML = tiempo;
+
+if(tiempo <= 0){
+
+vidas--;
+
+vidasEl.innerHTML = vidas;
+
+mensajeEl.innerHTML =
+"⏰ Tiempo agotado";
+
+clearInterval(intervalo);
+
+setTimeout(()=>{
+
+actual++;
+cargarPregunta();
+
+},1200);
+
+}
+
+},1000);
+
+}
+
+function responder(valor){
+
+clearInterval(intervalo);
+
+let correcta =
+preguntas[actual].respuesta;
+
+if(valor === correcta){
+
+puntos += 10;
+
+puntosEl.innerHTML =
+puntos;
+
+mensajeEl.innerHTML =
+"✅ ¡Correcto!";
+
+sonidoCorrecto();
+
+}else{
+
+vidas--;
+
+vidasEl.innerHTML =
+vidas;
+
+mensajeEl.innerHTML =
+"❌ Incorrecto";
+
+sonidoError();
+
+}
+
+setTimeout(()=>{
+
+actual++;
+
+cargarPregunta();
+
+},1200);
+
+}
+
+function terminarJuego(){
+
+document.querySelector(".game")
+.style.display = "none";
+
+document
+.getElementById("finalScreen")
+.classList.remove("hidden");
+
+let medalla = "";
+
+if(puntos >= 70){
+
+medalla =
+"🥇 Experto en Computación";
+
+}else if(puntos >= 40){
+
+medalla =
+"🥈 Conocedor de la Historia";
+
+}else{
+
+medalla =
+"🥉 Aprendiz Tecnológico";
 
 }
 
 document
-.getElementById("checkBtn")
-.addEventListener("click", verificar);
+.getElementById("medalla")
+.innerHTML = medalla;
 
-function verificar(){
-
-    const ordenCorrecto = [
-
-        "ENIAC",
-        "Transistor",
-        "Intel 4004",
-        "IBM PC",
-        "World Wide Web",
-        "Era Moderna e Inteligencia Artificial"
-
-    ];
-
-    const elementos =
-        [...document.querySelectorAll("#timeline li")];
-
-    let puntos = 0;
-
-    elementos.forEach((item,index)=>{
-
-        if(item.textContent === ordenCorrecto[index]){
-
-            puntos++;
-
-        }
-
-    });
-
-    const resultado =
-        document.getElementById("resultado");
-
-    if(puntos === 6){
-
-        resultado.className = "correcto";
-
-        resultado.innerHTML = `
-        🏆 ¡Perfecto!
-        <br>
-        Has ordenado correctamente toda la historia.
-        `;
-
-    }else{
-
-        resultado.className = "incorrecto";
-
-        resultado.innerHTML = `
-        ❌ Obtuviste ${puntos}/6.
-        <br>
-        Intenta nuevamente.
-        `;
-
-    }
-
+document
+.getElementById("resultadoFinal")
+.innerHTML =
+`Obtuviste ${puntos} puntos`;
 }
+
+cargarPregunta();
